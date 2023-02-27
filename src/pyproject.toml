@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "Webtronics"
+version = "0.1.0"
+description = "Test task"
+authors = ["krestovsky13"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "0.88.0"
+sqlalchemy = {version = "1.4.45", extras = ["asyncio"]}
+uvicorn = "0.20.0"
+alembic = "1.9.3"
+aioredis = "2.0.1"
+aiohttp = "3.8.3"
+bcrypt = "4.0.1"
+asyncpg = "0.27.0"
+python-dotenv = "0.21.0"
+python-jose = "3.3.0"
+passlib = "1.7.4"
+pydantic = {version = "1.10.2", extras = ["email"]}
+python-multipart = "0.0.5"
+pre-commit = "2.21.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
