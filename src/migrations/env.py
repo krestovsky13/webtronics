@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from alembic import context
 
-from apps.posts.models import Post, AssociationPostLikes
-from apps.users.models import User
+from apps.posts.models import *
+from apps.users.models import *
 from core.config import settings
 from db.models import BaseModel
 

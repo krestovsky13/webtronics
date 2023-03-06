@@ -18,9 +18,6 @@ def start_application():
     app = FastAPI(
         title=settings.PROJECT_NAME,
         version=settings.PROJECT_VERSION,
-        # on_startup=[
-        #     db.init_tables,
-        # ]
     )
 
     conf_init(app)
@@ -30,10 +27,3 @@ def start_application():
 
 
 app = start_application()
-
-# async def logs(cont, name):
-#     conn = aiohttp.UnixConnector(path="/var/run/docker.sock")
-#     async with aiohttp.ClientSession(connector=conn) as session:
-#         async with session.get(f"http://xx/containers/{cont}/logs?follow=1&stdout=1") as resp:
-#             async for line in resp.content:
-#                 print(name, line)
