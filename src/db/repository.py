@@ -81,7 +81,7 @@ class BaseRepository(Generic[Model, CreateSchema, UpdateSchema]):
                 await db.rollback()
                 raise
 
-            return await self.get(_id, db)
+        return await self.get(_id, db)
 
     async def delete(self, _id: Any, db: AsyncSession) -> int:
         """

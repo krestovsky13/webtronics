@@ -37,7 +37,7 @@ class CacheBackend:
 
     async def set_cache(
         self, data: SchemaModel | dict, uid: str | int, expire: int = 60
-    ) -> None:
+    ):
         """
         Сериализация и сохранение хэша со сроком жизни
         """

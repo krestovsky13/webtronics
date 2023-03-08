@@ -6,15 +6,9 @@ from fastapi import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.exceptions import (
-    AlreadyExistException,
-    UnauthorizedException,
-)
 from apps.users.auth.schemas import Token
 from apps.users.auth.jwt import AuthService
 from apps.users.auth.utils import verify_email
-from apps.users.exceptions import VerifyEmailException
-from apps.users.models import User
 from apps.users.schemas import (
     UserCreate,
     ShowUser,
@@ -35,13 +29,8 @@ async def create_user(
     user_services: UserServices = Depends(),
     db: AsyncSession = Depends(db.get_db),
 ):
-    if await verify_email(user_schema.email):
-        if user := await user_services.create(user_schema, db):
-            return user
-        else:
-            raise AlreadyExistException(User)
-    else:
-        raise VerifyEmailException()
+    await verify_email(user_schema.email)
+    return await user_services.create(user_schema, db)
 
 
 @router.post(
@@ -59,8 +48,6 @@ async def login_for_access_token(
         password=form_data.password,
         db=db,
     )
-    if not user:
-        raise UnauthorizedException()
 
     tokens = Token(
         access_token=await auth_services.create_access_token(user=user),

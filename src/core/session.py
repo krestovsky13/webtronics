@@ -32,10 +32,5 @@ class AsyncDatabaseSession:
         async with self._session() as session:
             yield session
 
-    # async def init_tables(self):
-    #     async with self._engine.begin() as conn:
-    #         await conn.run_sync(BaseModel.metadata.drop_all)
-    #         await conn.run_sync(BaseModel.metadata.create_all)
-
 
 db = AsyncDatabaseSession()

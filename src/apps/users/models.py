@@ -13,7 +13,7 @@ class User(BaseModel):
     Модель пользователя
     """
 
-    username = Column(String(15), unique=True, nullable=False)
+    username = Column(String(15), nullable=False, unique=True, index=True)
     email = Column(String(30), nullable=False, unique=True, index=True)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)

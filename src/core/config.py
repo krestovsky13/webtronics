@@ -44,6 +44,14 @@ class Settings:
     HUNTER_VERIFY_ENDPOINT: str = "email-verifier"
     HUNTER_SUCCESS_STATUSES: tuple = ("valid", "accept_all", "webmail", "disposable")
 
+    # Tests
+    DB_HOST_TEST = os.getenv("DB_HOST_TEST", "postgres")
+    DB_PORT_TEST = os.getenv("DB_PORT_TEST", 5432)
+    DB_NAME_TEST = os.getenv("DB_NAME_TEST", "tests")
+    DB_USER_TEST = os.getenv("DB_USER_TEST", "postgres")
+    DB_PASS_TEST = os.getenv("DB_PASS_TEST", "postgres")
+    DATABASE_URL_TEST = f"postgresql+asyncpg://{DB_USER_TEST}:{DB_PASS_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}"
+
 
 @functools.lru_cache()
 def _build_settings() -> Settings:

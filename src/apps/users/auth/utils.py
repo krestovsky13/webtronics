@@ -2,10 +2,11 @@ import aiohttp
 from fastapi import HTTPException
 from starlette import status
 
+from apps.users.exceptions import VerifyEmailException
 from core.config import settings
 
 
-async def verify_email(email: str) -> bool:
+async def verify_email(email: str):
     """
     Проверка почты через стороннее API
     """
@@ -27,4 +28,5 @@ async def verify_email(email: str) -> bool:
                     details = content["errors"]["details"]
                     raise HTTPException(status_code=code, detail=details)
             else:
-                return content["data"]["status"] in settings.HUNTER_SUCCESS_STATUSES
+                if content["data"]["status"] not in settings.HUNTER_SUCCESS_STATUSES:
+                    raise VerifyEmailException()

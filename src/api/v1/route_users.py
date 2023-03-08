@@ -7,8 +7,6 @@ from fastapi import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.exceptions import DoesNotExistException
-from apps.users.models import User
 from apps.users.services import UserServices
 from apps.users.schemas import (
     ShowUser,
@@ -43,10 +41,7 @@ async def get_user(
     user_services: UserServices = Depends(),
     db: AsyncSession = Depends(db.get_db),
 ):
-    if not (user := await user_services.get(_id, db)):
-        raise DoesNotExistException(_id, User)
-
-    return user
+    return await user_services.get(_id, db)
 
 
 @router.patch(
@@ -61,10 +56,7 @@ async def update_user(
     user_services: UserServices = Depends(),
     db: AsyncSession = Depends(db.get_db),
 ):
-    if not (user := await user_services.update(_id, user_schema, db)):
-        raise DoesNotExistException(_id, User)
-
-    return user
+    return await user_services.update(_id, user_schema, db)
 
 
 @router.delete(
@@ -77,7 +69,6 @@ async def delete_user(
     user_services: UserServices = Depends(),
     db: AsyncSession = Depends(db.get_db),
 ):
-    if not (user_id := await user_services.delete(_id, db)):
-        raise DoesNotExistException(_id, User)
+    user_id = await user_services.delete(_id, db)
 
     return {"msg": f"Successfully deleted (User_id={user_id})"}

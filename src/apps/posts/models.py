@@ -22,7 +22,7 @@ class AssociationPostLikes(BaseModel):
 
 class Post(BaseModel):
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    title = Column(String(20), nullable=False)
+    title = Column(String(20), nullable=False, unique=True)
     description = Column(String(50), nullable=False)
     author_id = Column(
         Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False

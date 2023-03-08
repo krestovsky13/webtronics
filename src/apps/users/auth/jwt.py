@@ -7,6 +7,7 @@ from datetime import (
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.exceptions import UnauthorizedException
 from apps.users.auth.hashing import Hasher
 from core.config import settings
 from apps.users.services import (
@@ -25,8 +26,10 @@ class AuthService:
         username: str, password: str, db: AsyncSession
     ) -> Optional[User]:
         user: User = await UserServices.get_user_by_username(username=username, db=db)
-        if user and Hasher.verify_password(password, user.hashed_password):
-            return user
+        if not Hasher.verify_password(password, user.hashed_password):
+            raise UnauthorizedException()
+
+        return user
 
     @staticmethod
     async def get_token_payload(user: User, expires_delta: timedelta, **kwargs):

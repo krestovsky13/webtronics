@@ -6,7 +6,7 @@
 
 ## Additional sectios:
 ### - Is used emailhunter.co for verifying email existence on registration
-### - Is used an in-memory DB for storing post, post likes and dislikes (As a cache, that gets updated whenever new likes and dislikes get added) 
+### - Is used an in-memory DB for storing post, post likes and dislikes (As a cache, that gets updated whenever new likes and dislikes get added)
 
 ### Local launch of the project
 ```

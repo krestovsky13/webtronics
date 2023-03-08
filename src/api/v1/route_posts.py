@@ -6,14 +6,13 @@ from fastapi import (
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.background import BackgroundTasks
 
-from api.deps import authorized_user
-from api.exceptions import DoesNotExistException
+from api.permissions import (
+    authorized_user,
+    author_permission,
+    like_permission,
+)
 from apps.users.models import User
 from apps.users.auth.bearer import JWTBearer
-from apps.posts.exceptions import (
-    LikeOwnPostException,
-    EditOwnPostException,
-)
 from apps.posts.models import Post
 from apps.posts.services import PostServices
 from apps.posts.schemas import (
@@ -70,10 +69,8 @@ async def get_post(
     db: AsyncSession = Depends(db.get_db),
 ):
     if not (post := await cache.get_cache(_id)):
-        if post := await post_services.get(_id, db):
-            back_task.add_task(cache.set_cache, ShowPost.from_orm(post), _id)
-        else:
-            raise DoesNotExistException(_id, Post)
+        post = await post_services.get(_id, db)
+        back_task.add_task(cache.set_cache, ShowPost.from_orm(post), _id)
 
     return post
 
@@ -82,41 +79,30 @@ async def get_post(
     "/update/{id}",
     status_code=status.HTTP_200_OK,
     response_model=ShowPost,
+    dependencies=[Depends(author_permission)],
 )
 async def update_post(
     _id: int,
     back_task: BackgroundTasks,
     post_schema: PostBase,
     post_services: PostServices = Depends(),
-    user: User = Depends(authorized_user),
     db: AsyncSession = Depends(db.get_db),
 ):
-    if _id == user.id:
-        if post := await post_services.update(_id, post_schema, db):
-            back_task.add_task(cache.set_cache, ShowPost.from_orm(post), _id)
-        else:
-            raise DoesNotExistException(_id, Post)
-    else:
-        raise EditOwnPostException()
+    post = await post_services.update(_id, post_schema, db)
+    back_task.add_task(cache.set_cache, ShowPost.from_orm(post), _id)
 
     return post
 
 
-@router.delete("/delete/{id}")
+@router.delete("/delete/{id}", dependencies=[Depends(author_permission)])
 async def delete_post(
     _id: int,
     back_task: BackgroundTasks,
     post_services: PostServices = Depends(),
-    user: User = Depends(authorized_user),
     db: AsyncSession = Depends(db.get_db),
 ):
-    if _id == user.id:
-        if post_id := await post_services.delete(_id, db):
-            back_task.add_task(cache.del_cache, post_id)
-        else:
-            raise DoesNotExistException(_id, Post)
-    else:
-        raise EditOwnPostException()
+    post_id = await post_services.delete(_id, db)
+    back_task.add_task(cache.del_cache, post_id)
 
     return {"msg": f"Successfully deleted (Post_id={post_id})"}
 
@@ -130,16 +116,11 @@ async def like_post(
     _id: int,
     back_task: BackgroundTasks,
     post_services: PostServices = Depends(),
-    user: User = Depends(authorized_user),
+    user: User = Depends(like_permission),
     db: AsyncSession = Depends(db.get_db),
 ):
-    if post := await post_services.get(_id, db):
-        if post.author is not user:
-            post: Post = await post_services.put_like_dislike(post, user, db)
-            back_task.add_task(cache.set_cache, ShowPost.from_orm(post), _id)
-        else:
-            raise LikeOwnPostException()
-    else:
-        raise DoesNotExistException(_id, Post)
+    post = await post_services.get(_id, db)
+    post: Post = await post_services.put_like_dislike(post, user, db)
+    back_task.add_task(cache.set_cache, ShowPost.from_orm(post), _id)
 
     return post
