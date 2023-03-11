@@ -60,7 +60,7 @@ async def update_user(
 
 
 @router.delete(
-    "/delete/{id}",
+    "/delete/{_id}",
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(JWTBearer())],
 )

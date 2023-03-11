@@ -1,4 +1,6 @@
 __pycache__
 .env
+.idea
 env
 test_db.db
+.pytest_cache

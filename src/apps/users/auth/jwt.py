@@ -7,7 +7,6 @@ from datetime import (
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.exceptions import UnauthorizedException
 from apps.users.auth.hashing import Hasher
 from core.config import settings
 from apps.users.services import (
@@ -26,13 +25,11 @@ class AuthService:
         username: str, password: str, db: AsyncSession
     ) -> Optional[User]:
         user: User = await UserServices.get_user_by_username(username=username, db=db)
-        if not Hasher.verify_password(password, user.hashed_password):
-            raise UnauthorizedException()
-
-        return user
+        if user and Hasher.verify_password(password, user.hashed_password):
+            return user
 
     @staticmethod
-    async def get_token_payload(user: User, expires_delta: timedelta, **kwargs):
+    async def set_token_payload(user: User, expires_delta: timedelta, **kwargs):
         """
         Полезная нагрузка токена
         """
@@ -52,22 +49,27 @@ class AuthService:
         return token_payload
 
     @staticmethod
+    async def get_payload_from_token(
+        token: str,
+        secret_key: str = settings.SECRET_KEY,
+        algorithms: str | list = settings.ALGORITHM,
+    ) -> dict:
+        return jwt.decode(token, secret_key, algorithms=algorithms)
+
+    @staticmethod
     async def create_access_token(
         user: User,
         expires_delta: Optional[timedelta] = timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         ),
-    ) -> Optional[str]:
-        if not any((user, isinstance(user, User))):
-            return None
-
-        token_payload = await AuthService.get_token_payload(
+    ) -> str:
+        token_payload = await AuthService.set_token_payload(
             user=user, expires_delta=expires_delta
         )
 
         access_token = jwt.encode(
-            token_payload,
-            settings.SECRET_KEY,
+            claims=token_payload,
+            key=settings.SECRET_KEY,
             algorithm=settings.ALGORITHM,
         )
 
@@ -79,17 +81,14 @@ class AuthService:
         expires_delta: Optional[timedelta] = timedelta(
             minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES
         ),
-    ) -> Optional[str]:
-        if not any((user, isinstance(user, User))):
-            return None
-
-        token_payload = await AuthService.get_token_payload(
+    ) -> str:
+        token_payload = await AuthService.set_token_payload(
             user=user, expires_delta=expires_delta
         )
 
         refresh_token = jwt.encode(
-            token_payload,
-            settings.REFRESH_SECRET_KEY,
+            claims=token_payload,
+            key=settings.REFRESH_SECRET_KEY,
             algorithm=settings.ALGORITHM,
         )
 

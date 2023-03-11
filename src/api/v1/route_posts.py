@@ -57,7 +57,7 @@ async def all_posts(
 
 
 @router.get(
-    "/get/{id}",
+    "/get/{_id}",
     response_model=ShowPost,
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(JWTBearer())],
@@ -76,7 +76,7 @@ async def get_post(
 
 
 @router.patch(
-    "/update/{id}",
+    "/update/{_id}",
     status_code=status.HTTP_200_OK,
     response_model=ShowPost,
     dependencies=[Depends(author_permission)],
@@ -94,7 +94,7 @@ async def update_post(
     return post
 
 
-@router.delete("/delete/{id}", dependencies=[Depends(author_permission)])
+@router.delete("/delete/{_id}", dependencies=[Depends(author_permission)])
 async def delete_post(
     _id: int,
     back_task: BackgroundTasks,
@@ -108,7 +108,7 @@ async def delete_post(
 
 
 @router.post(
-    "/like/{id}",
+    "/like/{_id}",
     status_code=status.HTTP_200_OK,
     response_model=ShowPost,
 )

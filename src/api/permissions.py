@@ -4,6 +4,7 @@ from fastapi import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.exceptions import UnauthorizedException
 from apps.posts.exceptions import (
     EditOwnPostException,
     LikeOwnPostException,
@@ -22,10 +23,13 @@ async def authorized_user(
     """
     Аутентифицирует по токену и возвращает авторизованного пользователя
     """
-    user: User = await UserServices.get_user_by_username(
-        username=request.state.user,
-        db=db,
-    )
+    if not (
+        user := await UserServices.get_user_by_username(
+            username=request.state.user,
+            db=db,
+        )
+    ):
+        raise UnauthorizedException()
 
     return user
 
@@ -34,7 +38,7 @@ def author_permission(request: Request, user: User = Depends(authorized_user)):
     """
     Permission для авторов
     """
-    post_id = request.query_params.get("_id")
+    post_id = int(request.path_params.get("_id"))
     if post_id not in (i.id for i in user.posts):
         raise EditOwnPostException()
 
@@ -45,7 +49,7 @@ def like_permission(request: Request, user: User = Depends(authorized_user)):
     """
     Permission для лайков/дизлайков
     """
-    post_id = request.query_params.get("_id")
+    post_id = int(request.path_params.get("_id"))
     if post_id in (i.id for i in user.posts):
         raise LikeOwnPostException()
 

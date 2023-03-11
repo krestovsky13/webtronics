@@ -9,7 +9,6 @@ from sqlalchemy.future import select
 from api.exceptions import (
     AlreadyExistException,
     DoesNotExistException,
-    UnauthorizedException,
 )
 from apps.users.auth.hashing import Hasher
 from db.repository import BaseRepository
@@ -60,7 +59,5 @@ class UserServices(BaseRepository[User, UserCreate, BaseUser]):
     @staticmethod
     async def get_user_by_username(username: str, db: AsyncSession) -> Optional[User]:
         results = await db.execute(select(User).where(User.username == username))
-        if not (obj := results.one_or_none()):
-            raise UnauthorizedException()
-
-        return obj[0]
+        if obj := results.one_or_none():
+            return obj[0]

@@ -19,7 +19,7 @@ class Settings:
     # DB
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")
-    POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "postgres")
+    POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")
     POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", 5432)
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "postgres")
     DATABASE_URL = (
@@ -28,7 +28,7 @@ class Settings:
     )
 
     # Redis
-    REDIS_HOST: str = os.getenv("REDIS_HOST", "redis")
+    REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
     REDIS_PORT: int = os.getenv("REDIS_PORT", 6379)
 
     # Auth
@@ -45,12 +45,16 @@ class Settings:
     HUNTER_SUCCESS_STATUSES: tuple = ("valid", "accept_all", "webmail", "disposable")
 
     # Tests
-    DB_HOST_TEST = os.getenv("DB_HOST_TEST", "postgres")
-    DB_PORT_TEST = os.getenv("DB_PORT_TEST", 5432)
-    DB_NAME_TEST = os.getenv("DB_NAME_TEST", "tests")
-    DB_USER_TEST = os.getenv("DB_USER_TEST", "postgres")
-    DB_PASS_TEST = os.getenv("DB_PASS_TEST", "postgres")
-    DATABASE_URL_TEST = f"postgresql+asyncpg://{DB_USER_TEST}:{DB_PASS_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}"
+    DB_TEST_USER = os.getenv("DB_TEST_USER", "postgres")
+    DB_TEST_PASS = os.getenv("DB_TEST_PASS", "postgres")
+    DB_TEST_HOST = os.getenv("DB_TEST_HOST", "localhost")
+    DB_TEST_PORT = os.getenv("DB_TEST_PORT", 5432)
+    DB_TEST_NAME = os.getenv("DB_TEST_NAME", "tests")
+    DATABASE_TEST_URL = f"postgresql+asyncpg://{DB_TEST_USER}:{DB_TEST_PASS}@{DB_TEST_HOST}:{DB_TEST_PORT}/{DB_TEST_NAME}"
+    TEST_USER_USERNAME = "username"
+    # для проверки в Hunter.io
+    TEST_USER_EMAIL = "user@example.com"
+    TEST_USER_PASSWORD = "rand0m-paSSw0rd"
 
 
 @functools.lru_cache()

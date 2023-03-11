@@ -6,6 +6,7 @@ from fastapi import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.exceptions import UnauthorizedException
 from apps.users.auth.schemas import Token
 from apps.users.auth.jwt import AuthService
 from apps.users.auth.utils import verify_email
@@ -43,11 +44,14 @@ async def login_for_access_token(
     auth_services: AuthService = Depends(),
     db: AsyncSession = Depends(db.get_db),
 ):
-    user = await auth_services.authenticate_user(
-        username=form_data.username,
-        password=form_data.password,
-        db=db,
-    )
+    if not (
+        user := await auth_services.authenticate_user(
+            username=form_data.username,
+            password=form_data.password,
+            db=db,
+        )
+    ):
+        raise UnauthorizedException()
 
     tokens = Token(
         access_token=await auth_services.create_access_token(user=user),
